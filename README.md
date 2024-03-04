@@ -1,6 +1,4 @@
-# Project Title
-
-Blood Transfusion Analysis
+# Blood Transfusion Analysis
 
 ## Overview
 
