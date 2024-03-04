@@ -86,7 +86,4 @@ for model, score in sorted_scores:
 
 This README provides a concise overview of the blood transfusion analysis project. Explore the code for details and insights.
 
-## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-```
