@@ -1,90 +1,92 @@
+
 # Blood Transfusion Analysis
 
 ## Overview
 
-This project aims to analyze blood donation data using machine learning techniques. The dataset is loaded from a CSV file and processed to predict whether an individual donated blood in March 2007. The analysis includes data preprocessing, model training using TPOT (Tree-based Pipeline Optimization Tool) and Linear Regression, log normalization, and AUC score evaluation.
+This project analyzes blood donation data to predict whether an individual donated blood in March 2007. It includes data preprocessing, model training with TPOT and Linear Regression, log normalization, and AUC score evaluation.
 
 ## Prerequisites
 
-Before running the code, make sure you have the following libraries installed:
-
-- numpy
-- pandas
-- matplotlib
-- seaborn
-- scikit-learn
-- tpot
-
-You can install them using the following command:
+Ensure you have the required libraries installed:
 
 ```bash
 pip install numpy pandas matplotlib seaborn scikit-learn tpot
 ```
 
-## Code Structure
+## Code Highlights
 
-The code is structured as follows:
-
-1. **Import Necessary Libraries**
-   - Import required libraries for data analysis and machine learning.
+### Import Libraries
 
 ```python
-# ... (import statements)
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from sklearn.ensemble import RandomForestRegressor, VotingRegressor
+from sklearn.metrics import roc_auc_score
+from tpot import TPOTClassifier
 ```
 
-2. **Load Dataset**
-   - Load the blood donation dataset from the specified file path.
-   - Display basic information and statistics of the dataset.
+### Load Dataset
 
 ```python
-# ... (loading dataset and basic information)
+data = pd.read_csv("path/to/transfusion.csv")
 ```
 
-3. **Data Preprocessing**
-   - Rename the target column.
-   - Display target incidence proportions.
-   - Split the dataset into training and testing sets.
+### Data Preprocessing
 
 ```python
-# ... (data preprocessing)
+data.rename(columns={'whether he/she donated blood in March 2007': 'target'}, inplace=True)
+X = data.drop(columns='target')
+y = data.target
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42, stratify=y)
 ```
 
-4. **Model Training with TPOT**
-   - Use TPOTClassifier for automated machine learning model selection and hyperparameter tuning.
-   - Print AUC score for the TPOT model.
-   - Export the best pipeline to a Python script.
+### Model Training with TPOT
 
 ```python
-# ... (TPOT model training and evaluation)
+pipeline_optimizer = TPOTClassifier(generations=5, population_size=20, scoring='roc_auc', random_state=42)
+pipeline_optimizer.fit(X_train, y_train)
+print(pipeline_optimizer.score(X_test, y_test))
+pipeline_optimizer.export('tpot_exported_pipeline.py')
 ```
 
-5. **Log Normalization**
-   - Check and normalize the variance of the training set.
-   - Perform log normalization on the specified column.
+### Log Normalization
 
 ```python
-# ... (log normalization)
+col_to_normalize = 'Monetary (c.c. blood)'
+X_train_normed, X_test_normed = X_train.copy(), X_test.copy()
+for df_ in [X_train_normed, X_test_normed]:
+    df_['monetary_log'] = np.log(df_[col_to_normalize])
+    df_.drop(columns=col_to_normalize, inplace=True)
 ```
 
-6. **Linear Regression Model**
-   - Train a Linear Regression model using log-normalized data.
-   - Print AUC score for the Linear Regression model.
+### Linear Regression Model
 
 ```python
-# ... (linear regression model training and evaluation)
+lr = LinearRegression()
+lr.fit(X_train_normed, y_train)
+logreg_auc_score = roc_auc_score(y_test, lr.predict(X_test_normed))
+print(f'AUC score: {logreg_auc_score:.4f}')
 ```
 
-7. **Model Comparison**
-   - Sort models based on their AUC scores and display the results.
+### Model Comparison
 
 ```python
-# ... (model comparison)
+model_scores = [('TPOT', pipeline_optimizer.score(X_test, y_test)), ('Linear Regression', logreg_auc_score)]
+sorted_scores = sorted(model_scores, key=lambda x: x[1], reverse=True)
+print('Model Comparison:')
+for model, score in sorted_scores:
+    print(f'{model}: {score:.4f}')
 ```
 
 ## Conclusion
 
-This README provides an overview of the blood transfusion analysis project. Feel free to explore the code for more details and insights.
+This README provides a concise overview of the blood transfusion analysis project. Explore the code for details and insights.
 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+```
