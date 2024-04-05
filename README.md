@@ -1,89 +1,34 @@
+# Blood Donation Prediction
 
-# Blood Transfusion Analysis
+This project aims to predict a person's likelihood of donating blood using machine learning models. The dataset contains past blood donation information and other relevant features. The project involves data preprocessing, model training, and performance evaluation. Here are the steps and details of the project:
 
-## Overview
+## Steps
 
-This project analyzes blood donation data to predict whether an individual donated blood in March 2007. It includes data preprocessing, model training with TPOT and Linear Regression, log normalization, and AUC score evaluation.
+1. **Import Necessary Libraries**: The required libraries for data analysis, model training, and evaluation are imported at the beginning of the project.
 
-## Prerequisites
+2. **Load the Dataset**: The project utilizes the `transfusion.csv` dataset, which includes information about blood donations.
 
-Ensure you have the required libraries installed:
+3. **Data Preprocessing**: The dataset is transformed into a suitable format for model training and evaluation. Additionally, the name of the target variable is changed, and class balance is checked.
 
-```bash
-pip install numpy pandas matplotlib seaborn scikit-learn tpot
-```
+4. **Split the Dataset**: The dataset is divided into training and test sets to assess the model's generalizability.
 
-## Code Highlights
+5. **Model Selection**: The project offers two different model options, TPOT and a linear regression model (`LinearRegression`).
 
-### Import Libraries
+6. **Model Training**: The selected models are trained on the training dataset.
 
-```python
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder
-from sklearn.ensemble import RandomForestRegressor, VotingRegressor
-from sklearn.metrics import roc_auc_score
-from tpot import TPOTClassifier
-```
+7. **Evaluate Model Performance**: The performance of the models is evaluated on the test dataset. Performance metrics include the AUC score and other accuracy metrics.
 
-### Load Dataset
+8. **Comparison of Results**: The performance of the models is compared, and the most suitable model is selected.
 
-```python
-data = pd.read_csv("path/to/transfusion.csv")
-```
+## Models Used
 
-### Data Preprocessing
+1. **TPOT (TBA)**: TPOT is employed for automatic model selection and hyperparameter tuning. TPOT searches a wide range of models and hyperparameters to find the best-performing model.
 
-```python
-data.rename(columns={'whether he/she donated blood in March 2007': 'target'}, inplace=True)
-X = data.drop(columns='target')
-y = data.target
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42, stratify=y)
-```
+2. **Linear Regression**: Linear regression is chosen for its simplicity and speed. This model is trained on log-normalized data.
 
-### Model Training with TPOT
+## Performance Evaluation
 
-```python
-pipeline_optimizer = TPOTClassifier(generations=5, population_size=20, scoring='roc_auc', random_state=42)
-pipeline_optimizer.fit(X_train, y_train)
-print(pipeline_optimizer.score(X_test, y_test))
-pipeline_optimizer.export('tpot_exported_pipeline.py')
-```
+- AUC scores for the TPOT model and linear regression model are compared.
+- The ranking of the models is determined based on their AUC scores.
 
-### Log Normalization
-
-```python
-col_to_normalize = 'Monetary (c.c. blood)'
-X_train_normed, X_test_normed = X_train.copy(), X_test.copy()
-for df_ in [X_train_normed, X_test_normed]:
-    df_['monetary_log'] = np.log(df_[col_to_normalize])
-    df_.drop(columns=col_to_normalize, inplace=True)
-```
-
-### Linear Regression Model
-
-```python
-lr = LinearRegression()
-lr.fit(X_train_normed, y_train)
-logreg_auc_score = roc_auc_score(y_test, lr.predict(X_test_normed))
-print(f'AUC score: {logreg_auc_score:.4f}')
-```
-
-### Model Comparison
-
-```python
-model_scores = [('TPOT', pipeline_optimizer.score(X_test, y_test)), ('Linear Regression', logreg_auc_score)]
-sorted_scores = sorted(model_scores, key=lambda x: x[1], reverse=True)
-print('Model Comparison:')
-for model, score in sorted_scores:
-    print(f'{model}: {score:.4f}')
-```
-
-## Conclusion
-
-This README provides a concise overview of the blood transfusion analysis project. Explore the code for details and insights.
-
-
+This project demonstrates how machine learning models can be used to address blood donation prediction, with the performance of the models evaluated based on the dataset and application requirements.
